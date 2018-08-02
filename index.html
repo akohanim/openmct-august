@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>    
+    <title>Open MCT Tutorials</title>
+    <script src="node_modules/openmct/dist/openmct.js"></script>
+    <script src="lib/http.js"></script>
+    <script src="dictionary-plugin.js"></script>
+    <script src="historical-telemetry-plugin.js"></script>
+    <script src="realtime-telemetry-plugin.js"></script>
+</head>
+<body>
+        <title>Simple Map</title>
+        <meta name="viewport" content="initial-scale=1.0">
+        <meta charset="utf-8">
+        <style>
+          /* Always set the map height explicitly to define the size of the div
+           * element that contains the map. */
+          #map {
+            height: 100%;
+          }
+          /* Optional: Makes the sample page fill the window. */
+          html, body {
+            height: 50%;
+            margin: 0;
+            padding: 0;
+          }
+        </style>
+      </body>
+      <body>
+        <div id="map"></div>
+        <script>
+          var map;
+          function initMap() {
+            var myLatLng = {lat: 34.443889, lng: -116.966944};
+
+            var map = new google.maps.Map(document.getElementById('map'), {
+              center: myLatLng,
+              zoom: 5,
+            });
+            
+          var myImage = './supplies.svg';
+           var marker = new google.maps.Marker({
+ 
+            position: myLatLng,
+            map: map,
+            icon: myImage,
+           
+             }); 
+          }
+        </script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCer_DK3WyR-BvEfJnlG7UZD-oxOol8yNM&callback=initMap"
+        async defer></script>
+      </body>
+        </html>
+
+
+
+
+
+
+
+        <head>
+          <title>Google Maps Example</title>
+          <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.19.0.min.js"></script>
+          <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+          <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" />
+        </head>
+        <body>
+          <div class="container">
+            <h1>PubNub Google Maps Tutorial - Live Device Location</h1>
+            <div id="map-canvas" 
+            style="width:600px;height:400px"></div>
+          </div>
+      
+          <script>
+          window.lat = 34.443889;
+          window.lng = -116.966944;
+      
+          function getLocation() {
+              if (navigator.geolocation) {
+                  navigator.geolocation.getCurrentPosition(updatePosition);
+              }
+            
+              return null;
+          };
+      
+          function updatePosition(position) {
+            if (position) {
+              window.lat = position.coords.latitude;
+              window.lng = position.coords.longitude;
+            }
+          }
+          
+          setInterval(function(){updatePosition(getLocation());}, 10000);
+            
+          function currentLocation() {
+            return {lat:window.lat, lng:window.lng};
+          };
+      
+          var map;
+          var mark;
+      
+          var initialize = function() {
+            map  = new google.maps.Map(document.getElementById('map-canvas'), {center:{lat:lat,lng:lng},zoom:12});
+            mark = new google.maps.Marker({position:{lat:lat, lng:lng}, map:map});
+          };
+      
+          window.initialize = initialize;
+      
+          var redraw = function(payload) {
+            lat = payload.message.lat;
+            lng = payload.message.lng;
+      
+            map.setCenter({lat:lat, lng:lng, alt:alt});
+            mark.setPosition({lat:lat, lng:lng, alt:alt});
+          };
+      
+          var pnChannel = "map2-channel";
+      
+          var pubnub = new PubNub({
+            publishKey:   'pub-c-b08f0ec4-9512-4f1f-bd7b-8ba180f3b556',
+            subscribeKey: 'sub-c-7bf44170-95fe-11e8-8b8e-36fdaf8c26b3'
+          });
+      
+          pubnub.subscribe({channels: [pnChannel]});
+          pubnub.addListener({message:redraw});
+      
+          setInterval(function() {
+            pubnub.publish({channel:pnChannel, message:currentLocation()});
+          }, 5000);
+          </script>
+          <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCer_DK3WyR-BvEfJnlG7UZD-oxOol8yNM&callback=initialize"></script>
+        </body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<body>
+    <script>
+        openmct.setAssetPath('node_modules/openmct/dist');
+        openmct.install(openmct.plugins.LocalStorage());
+        openmct.install(openmct.plugins.MyItems());
+        openmct.install(openmct.plugins.UTCTimeSystem());
+        openmct.time.clock('local', {start: -15 * 60 * 1000, end: 0});
+        openmct.time.timeSystem('utc');
+        openmct.install(openmct.plugins.Espresso());
+
+        openmct.install(DictionaryPlugin());
+        openmct.install(HistoricalTelemetryPlugin());
+        openmct.install(RealtimeTelemetryPlugin());
+
+        openmct.start();
+    </script>
+</body>
+</html>
